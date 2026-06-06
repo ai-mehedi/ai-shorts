@@ -7,15 +7,30 @@ import soundfile as sf
 SAMPLE_RATE = 24000
 
 
+def _smooth_edges(audio: np.ndarray, sr: int) -> np.ndarray:
+    """Tiny fade in/out so sentence joins don't click."""
+    n = int(sr * 0.006)
+    if len(audio) > 2 * n:
+        fade = np.linspace(0.0, 1.0, n, dtype=np.float32)
+        audio[:n] *= fade
+        audio[-n:] *= fade[::-1]
+    return audio
+
+
 def synth_kokoro(text: str, out_path: Path, voice="am_michael", speed=0.95) -> Path:
-    """Kokoro TTS -> wav. Runs on CPU or GPU."""
+    """Kokoro TTS -> wav. Smooth: small pause + fades between sentences."""
     from kokoro import KPipeline
 
     pipeline = KPipeline(lang_code="a")  # 'a' = American English
-    chunks = []
+    gap = np.zeros(int(SAMPLE_RATE * 0.14), dtype=np.float32)  # natural pause
+    pieces = []
     for _, _, audio in pipeline(text, voice=voice, speed=speed):
-        chunks.append(audio)
-    wav = np.concatenate(chunks) if chunks else np.zeros(1, dtype=np.float32)
+        if hasattr(audio, "detach"):
+            audio = audio.detach().cpu().numpy()
+        audio = np.asarray(audio, dtype=np.float32)
+        pieces.append(_smooth_edges(audio, SAMPLE_RATE))
+        pieces.append(gap)
+    wav = np.concatenate(pieces) if pieces else np.zeros(1, dtype=np.float32)
     sf.write(out_path, wav, SAMPLE_RATE)
     return out_path
 

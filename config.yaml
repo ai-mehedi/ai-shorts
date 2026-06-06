@@ -1,6 +1,6 @@
 # ====== ai-short config ======
 
-niche: scary                 # scary | motivation | facts
+niche: ai_horror             # see src/niches.py for all niche ids
 
 llm:
   provider: openai           # openai (ChatGPT) | anthropic (Claude)

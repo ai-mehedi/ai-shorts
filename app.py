@@ -13,30 +13,44 @@ from pathlib import Path
 
 import gradio as gr
 
-from src import (assemble, captions, thumbnail, topic_gen, tts, video_gen,
-                 viral_score)
+from src import (assemble, captions, niches, thumbnail, topic_gen, tts,
+                 video_gen, viral_score)
 from src.config import job_dir, load_config, models_dir
 
 PROVIDER_MAP = {"ChatGPT (OpenAI)": "openai", "Claude (Anthropic)": "anthropic"}
-VOICES = ["am_michael", "am_adam", "af_heart", "af_bella", "bm_george"]
+VOICES = ["auto (per niche)", "am_michael", "am_adam", "af_heart", "af_bella", "bm_george"]
+
+
+def _apply_niche(cfg, niche_id, voice_choice):
+    cfg["niche"] = niche_id
+    n = niches.get(niche_id)
+    # "auto" uses the niche's recommended voice + speed for a fitting, smooth read
+    if voice_choice == "auto (per niche)":
+        cfg["tts"]["voice"] = n.get("voice", "am_michael")
+        cfg["tts"]["speed"] = n.get("speed", 0.95)
+    else:
+        cfg["tts"]["voice"] = voice_choice
+    return cfg
 
 
 def slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:40] or "short"
 
 
-def surprise_topic(provider_label):
+def surprise_topic(provider_label, niche_id):
     cfg = load_config()
+    cfg["niche"] = niche_id
     try:
         return topic_gen.generate_topic(cfg, provider=PROVIDER_MAP[provider_label])
     except Exception as e:
         return f"(error: {e} — check your API key)"
 
 
-def check_score(topic, provider_label):
+def check_score(topic, provider_label, niche_id):
     """Cheap: write + score a script, NO voice/video. Decide before spending GPU."""
     cfg = load_config()
     cfg["llm"]["provider"] = PROVIDER_MAP[provider_label]
+    cfg["niche"] = niche_id
     try:
         if not topic.strip():
             topic = topic_gen.generate_topic(cfg)
@@ -47,12 +61,12 @@ def check_score(topic, provider_label):
     return viral_score.format_report(report), story
 
 
-def make_short(topic, provider_label, skip_video, target_seconds, voice):
+def make_short(topic, provider_label, skip_video, target_seconds, voice, niche_id):
     """Generator: yields (status, score, script, audio, video, thumb)."""
     cfg = load_config()
     cfg["llm"]["provider"] = PROVIDER_MAP[provider_label]
     cfg["output"]["target_seconds"] = int(target_seconds)
-    cfg["tts"]["voice"] = voice
+    _apply_niche(cfg, niche_id, voice)
     models_dir(cfg)
 
     if not topic.strip():
@@ -135,8 +149,9 @@ with gr.Blocks(title="AI Shorts Factory", theme=gr.themes.Soft()) as demo:
                 topic = gr.Textbox(label="Story topic (leave empty = auto)", scale=4,
                                    placeholder="e.g. abandoned hospital night shift")
                 dice = gr.Button("🎲", scale=1)
+            niche = gr.Dropdown(niches.choices(), value=niches.DEFAULT_NICHE, label="Niche")
             provider = gr.Dropdown(list(PROVIDER_MAP.keys()), value="ChatGPT (OpenAI)", label="AI brain")
-            voice = gr.Dropdown(VOICES, value="am_michael", label="Voice (am_ = American male)")
+            voice = gr.Dropdown(VOICES, value="auto (per niche)", label="Voice (auto = best for niche)")
             length = gr.Slider(40, 60, value=45, step=5, label="Length (seconds)")
             skip = gr.Checkbox(label="⚡ Quick test (skip AI video — fast, no big GPU)", value=True)
             with gr.Row():
@@ -151,9 +166,9 @@ with gr.Blocks(title="AI Shorts Factory", theme=gr.themes.Soft()) as demo:
                 thumb_out = gr.Image(label="🖼️ Thumbnail")
             video_out = gr.Video(label="🎬 Final Short")
 
-    dice.click(surprise_topic, [provider], [topic])
-    check.click(check_score, [topic, provider], [score_box, script_box])
-    go.click(make_short, [topic, provider, skip, length, voice],
+    dice.click(surprise_topic, [provider, niche], [topic])
+    check.click(check_score, [topic, provider, niche], [score_box, script_box])
+    go.click(make_short, [topic, provider, skip, length, voice, niche],
              [status, score_box, script_box, audio_out, video_out, thumb_out])
 
 if __name__ == "__main__":

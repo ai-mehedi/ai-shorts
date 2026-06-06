@@ -75,7 +75,7 @@ def run(topic: str, cfg: dict, skip_video=False) -> Path:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--topic", required=True)
-    ap.add_argument("--niche", default="scary")
+    ap.add_argument("--niche", default="ai_horror", help="see src/niches.py")
     ap.add_argument("--skip-video", action="store_true",
                     help="run script+voice+captions only (no big GPU needed)")
     args = ap.parse_args()

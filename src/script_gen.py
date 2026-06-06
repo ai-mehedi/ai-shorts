@@ -16,11 +16,24 @@ def _word_count(target_seconds: int) -> int:
 
 
 def _build_prompt(topic: str, cfg: dict) -> str:
+    from .niches import get as get_niche
+
     target = cfg["output"]["target_seconds"]
     words = _word_count(target)
     num_scenes = max(3, target // 6)   # ~1 scene per 6s
-    template = (ROOT / "prompts" / "scary_story.txt").read_text(encoding="utf-8")
-    return template.format(topic=topic, word_count=words, num_scenes=num_scenes)
+    niche = get_niche(cfg.get("niche", "ai_horror"))
+
+    template = (ROOT / "prompts" / "story.txt").read_text(encoding="utf-8")
+    return template.format(
+        topic=topic,
+        word_count=words,
+        num_scenes=num_scenes,
+        niche_label=niche["label"],
+        niche_guide=niche["guide"],
+        visuals=niche["visuals"],
+        thumbnail_style=niche["thumb"],
+        payoff=niche["payoff"],
+    )
 
 
 def _call_openai(prompt: str, model: str) -> str:

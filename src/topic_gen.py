@@ -4,20 +4,22 @@ import re
 
 from . import script_gen
 from .config import load_config
+from .niches import get as get_niche
 
-TOPIC_PROMPT = """Give me {n} ORIGINAL viral YouTube Shorts SCARY STORY topics for a US audience.
+TOPIC_PROMPT = """Give me {n} ORIGINAL viral YouTube Shorts topics for the niche
+"{niche_label}" aimed at a US (Tier-1) audience.
+Niche style: {niche_guide}
 Rules:
-- Each is a short creepy premise, max 10 words. No numbering, no quotes.
-- Modern, relatable American settings (night shift, rideshare, smart home,
-  babysitting, gas station, apartment hallway, road trip, delivery driver).
-- Must spark instant curiosity / dread.
+- Each is a short, specific premise, max 10 words. No numbering, no quotes.
+- Modern, relatable settings. Must spark instant curiosity.
 Return ONLY a JSON array of strings."""
 
 
 def generate_topics(cfg: dict, n: int = 5, provider: str | None = None) -> list[str]:
     llm = cfg.get("llm", {})
     provider = provider or llm.get("provider", "openai")
-    prompt = TOPIC_PROMPT.format(n=n)
+    niche = get_niche(cfg.get("niche", "ai_horror"))
+    prompt = TOPIC_PROMPT.format(n=n, niche_label=niche["label"], niche_guide=niche["guide"])
 
     if provider == "openai":
         raw = script_gen._call_openai(prompt, llm.get("openai_model", "gpt-4o"))
