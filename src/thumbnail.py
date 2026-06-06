@@ -59,15 +59,22 @@ def _cover(img, w, h):
     return img.crop((x, y, x + w, y + h))
 
 
+VIDEO_EXTS = (".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v")
+
+
 def _base_image(source, w, h):
     from PIL import Image
     img = None
     if source and Path(source).exists():
         try:
-            import imageio.v3 as iio
-            frame = iio.imread(str(source), index=10)  # grab a frame
-            img = Image.fromarray(frame)
-        except Exception:
+            if Path(source).suffix.lower() in VIDEO_EXTS:
+                import imageio.v3 as iio
+                frame = iio.imread(str(source), index=10)  # grab a video frame
+                img = Image.fromarray(frame)
+            else:
+                img = Image.open(str(source))  # still image (SDXL PNG, etc.)
+        except Exception as e:
+            print(f"  [thumb] could not read {source}: {e}")
             img = None
     if img is None:
         img = Image.new("RGB", (w, h), (12, 12, 18))  # dark fallback
