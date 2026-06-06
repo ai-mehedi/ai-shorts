@@ -29,7 +29,10 @@ sentencepiece          # required by the Albert text encoder Kokoro uses
 faster-whisper>=1.0.3
 
 # --- AI video ---
-diffusers>=0.32.0
+# diffusers 0.34+ registers a FlashAttention-3 custom op that needs torch 2.7+
+# (crashes on import with torch 2.4). Pin to 0.32.x — it still has HunyuanVideo
+# + SDXL and works with torch 2.4:
+diffusers>=0.32.0,<0.33
 # transformers 4.50+ needs torch 2.7+ (uses torch.float8_e8m0fnu).
 # RunPod ships torch 2.4.1, so keep transformers in a compatible range:
 transformers>=4.47.0,<4.50
