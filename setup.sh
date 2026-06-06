@@ -9,9 +9,9 @@ echo "============================================"
 
 # --- 1. system dependencies (ffmpeg + fonts) ---
 if command -v apt-get >/dev/null 2>&1; then
-  echo "==> installing ffmpeg, git, fonts..."
+  echo "==> installing ffmpeg, git, fonts, espeak-ng..."
   apt-get update -y
-  apt-get install -y --no-install-recommends ffmpeg git fonts-dejavu-core
+  apt-get install -y --no-install-recommends ffmpeg git fonts-dejavu-core espeak-ng
 fi
 
 # --- 2. python packages ---

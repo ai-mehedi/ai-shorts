@@ -16,8 +16,11 @@ gradio>=4.44.0
 
 # --- voice (TTS) ---
 # Kokoro: light, great American voices, runs on CPU or GPU
-kokoro>=0.7.0
+kokoro>=0.9.2
+misaki>=0.9.2          # G2P for Kokoro (English)
 soundfile
+sentencepiece          # required by the Albert text encoder Kokoro uses
+# NOTE: also needs the OS package `espeak-ng` (installed by setup.sh)
 # F5-TTS alternative (voice cloning) — uncomment to use:
 # f5-tts
 
