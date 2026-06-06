@@ -25,7 +25,8 @@ sentencepiece          # required by the Albert text encoder Kokoro uses
 # f5-tts
 
 # --- captions (word-level timing) ---
-whisperx>=3.1.1
+# faster-whisper: light, reliable word timestamps, NO pyannote/numpy-2 conflict
+faster-whisper>=1.0.3
 
 # --- AI video ---
 diffusers>=0.32.0

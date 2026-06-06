@@ -10,26 +10,24 @@ import torch
 
 
 def transcribe_words(audio_path: Path, model_name="large-v3") -> list[dict]:
-    """Return [{word, start, end}, ...] aligned to the audio."""
-    import whisperx
+    """Return [{word, start, end}, ...] using faster-whisper (word timestamps).
+
+    faster-whisper is light and has no pyannote/numpy-2 dependency, so it works
+    reliably with the torch 2.4 + numpy<2 stack on RunPod.
+    """
+    from faster_whisper import WhisperModel
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     compute = "float16" if device == "cuda" else "int8"
 
-    model = whisperx.load_model(model_name, device, compute_type=compute)
-    audio = whisperx.load_audio(str(audio_path))
-    result = model.transcribe(audio, batch_size=16)
-
-    align_model, meta = whisperx.load_align_model(
-        language_code=result["language"], device=device
-    )
-    result = whisperx.align(result["segments"], align_model, meta, audio, device)
+    model = WhisperModel(model_name, device=device, compute_type=compute)
+    segments, _ = model.transcribe(str(audio_path), word_timestamps=True, beam_size=5)
 
     words = []
-    for seg in result["segments"]:
-        for w in seg.get("words", []):
-            if "start" in w and "end" in w:
-                words.append({"word": w["word"].strip(), "start": w["start"], "end": w["end"]})
+    for seg in segments:
+        for w in (seg.words or []):
+            if w.start is not None and w.end is not None:
+                words.append({"word": w.word.strip(), "start": w.start, "end": w.end})
     return words
 
 
