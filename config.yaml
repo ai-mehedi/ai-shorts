@@ -12,11 +12,11 @@ quality:
   max_retries: 3             # how many scripts to try before keeping the best
 
 video:
-  width: 720                 # generation size (vertical); upscaled to 1080 on assemble
-  height: 1280
+  width: 544                 # smaller = much faster (upscaled to 1080 on assemble)
+  height: 960                # raise to 720x1280 later for best quality
   fps: 24
-  frames_per_scene: 85       # HunyuanVideo wants (4k+1) frames; 85 ≈ 3.5s
-  steps: 30                  # diffusion steps (lower = faster, rougher)
+  frames_per_scene: 61       # HunyuanVideo wants (4k+1); 61 ≈ 2.5s (85 = 3.5s)
+  steps: 25                  # diffusion steps (lower = faster, rougher)
   guidance: 6.0
   model: "hunyuanvideo-community/HunyuanVideo"
 
