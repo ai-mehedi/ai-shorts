@@ -9,15 +9,17 @@ from pathlib import Path
 import torch
 
 
-def transcribe_words(audio_path: Path, model_name="large-v3") -> list[dict]:
+def transcribe_words(audio_path: Path, model_name="small", device="cpu") -> list[dict]:
     """Return [{word, start, end}, ...] using faster-whisper (word timestamps).
 
-    faster-whisper is light and has no pyannote/numpy-2 dependency, so it works
-    reliably with the torch 2.4 + numpy<2 stack on RunPod.
+    Defaults to CPU: captions are only ~35s of clear speech, so CPU is fast and
+    avoids the cuDNN-8 GPU dependency that crashes on RunPod's cuDNN-9 image.
+    Set captions.device: cuda in config.yaml only if your pod has cuDNN 8.
     """
     from faster_whisper import WhisperModel
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if device == "auto":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
     compute = "float16" if device == "cuda" else "int8"
 
     model = WhisperModel(model_name, device=device, compute_type=compute)
@@ -94,7 +96,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 
 def make_captions(audio_path: Path, out_path: Path, cfg: dict, hook: str | None = None) -> Path:
-    words = transcribe_words(audio_path, cfg["captions"]["whisper_model"])
+    c = cfg["captions"]
+    words = transcribe_words(audio_path, c.get("whisper_model", "small"),
+                             c.get("device", "cpu"))
     return build_ass(words, out_path, cfg, hook=hook)
 
 

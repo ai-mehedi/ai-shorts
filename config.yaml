@@ -31,7 +31,8 @@ tts:
   speed: 0.95                # slightly slow = more dramatic
 
 captions:
-  whisper_model: large-v3
+  whisper_model: small       # small = fast + accurate enough for clear TTS speech
+  device: cpu                # cpu = reliable (no cuDNN). use cuda only if cuDNN 8 present
   font: "Arial Black"
   font_size: 22
   primary_color: "&H00FFFFFF"   # white
