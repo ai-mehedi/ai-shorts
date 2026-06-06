@@ -20,14 +20,17 @@ video:
   guidance: 6.0
   model: "hunyuanvideo-community/HunyuanVideo"
 
-image:                       # open-source image model for thumbnails (no login)
-  model: "SG161222/RealVisXL_V4.0"  # photorealistic faces, ungated, movie-poster look
-  width: 768                 # 9:16 portrait (SDXL bucket), cropped to vertical
+image:
+  provider: openai           # openai (ChatGPT, best, no GPU) | local (SDXL on GPU)
+  # --- openai (uses your OpenAI key, ~$0.04-0.08 per image) ---
+  openai_model: gpt-image-1
+  openai_size: "1024x1536"   # portrait
+  # --- local (only used if provider: local) ---
+  model: "SG161222/RealVisXL_V4.0"  # photorealistic faces, ungated
+  width: 768
   height: 1344
-  steps: 30                  # quality (RealVisXL needs ~25-35 steps)
+  steps: 30
   guidance: 7.0
-  # Faster but lower quality: "stabilityai/sdxl-turbo" (width/height 1024, steps 4, guidance 0.0)
-  # Best quality (needs HF login): "black-forest-labs/FLUX.1-schnell"
 
 thumbnail:
   use_ai: true               # true = FLUX makes a real scary image (needs GPU)
