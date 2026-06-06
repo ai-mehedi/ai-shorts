@@ -61,7 +61,7 @@ def check_score(topic, provider_label, niche_id):
     return viral_score.format_report(report), story
 
 
-def make_short(topic, provider_label, skip_video, target_seconds, voice, niche_id):
+def make_short(topic, provider_label, skip_video, target_seconds, voice, niche_id, make_thumb):
     """Generator: yields (status, score, script, audio, video, thumb)."""
     cfg = load_config()
     cfg["llm"]["provider"] = PROVIDER_MAP[provider_label]
@@ -113,9 +113,11 @@ def make_short(topic, provider_label, skip_video, target_seconds, voice, niche_i
                     or (script["scenes"][0]["video_prompt"] if script.get("scenes") else script["title"]))
 
     if skip_video:
-        yield "🖼️ Making AI thumbnail (FLUX)...", score_text, script_text, str(voice_path), None, None
-        thumb = thumbnail.make_thumbnail(script["title"], None, work / "thumbnail.jpg", cfg, ai_prompt=thumb_prompt)
-        yield (f"✅ Quick test done.\nFolder: {work}"), score_text, script_text, str(voice_path), None, str(thumb)
+        thumb = None
+        if make_thumb:
+            yield "🖼️ Making thumbnail...", score_text, script_text, str(voice_path), None, None
+            thumb = str(thumbnail.make_thumbnail(script["title"], None, work / "thumbnail.jpg", cfg, ai_prompt=thumb_prompt))
+        yield (f"✅ Quick test done.\nFolder: {work}"), score_text, script_text, str(voice_path), None, thumb
         return
 
     # 4. video — generate scene by scene with live progress
@@ -143,9 +145,11 @@ def make_short(topic, provider_label, skip_video, target_seconds, voice, niche_i
         yield f"❌ Assembly failed: {e}", score_text, script_text, str(voice_path), None, None
         return
 
-    # 6. thumbnail
-    thumb = thumbnail.make_thumbnail(script["title"], scenes[0], work / "thumbnail.jpg", cfg, ai_prompt=thumb_prompt)
-    yield f"✅ DONE! Short + thumbnail ready.\nFolder: {work}", score_text, script_text, str(voice_path), str(out), str(thumb)
+    # 6. thumbnail (optional)
+    thumb = None
+    if make_thumb:
+        thumb = str(thumbnail.make_thumbnail(script["title"], scenes[0], work / "thumbnail.jpg", cfg, ai_prompt=thumb_prompt))
+    yield f"✅ DONE! Your short is ready.\nFolder: {work}", score_text, script_text, str(voice_path), str(out), thumb
 
 
 with gr.Blocks(title="AI Shorts Factory", theme=gr.themes.Soft()) as demo:
@@ -162,6 +166,7 @@ with gr.Blocks(title="AI Shorts Factory", theme=gr.themes.Soft()) as demo:
             voice = gr.Dropdown(VOICES, value="auto (per niche)", label="Voice (auto = best for niche)")
             length = gr.Slider(40, 60, value=45, step=5, label="Length (seconds)")
             skip = gr.Checkbox(label="⚡ Quick test (skip AI video — fast, no big GPU)", value=True)
+            make_thumb = gr.Checkbox(label="🖼️ Make thumbnail (off = make it later yourself)", value=False)
             with gr.Row():
                 check = gr.Button("🔍 Check Viral Score (free)")
                 go = gr.Button("🎬 Make My Short", variant="primary")
@@ -176,7 +181,7 @@ with gr.Blocks(title="AI Shorts Factory", theme=gr.themes.Soft()) as demo:
 
     dice.click(surprise_topic, [provider, niche], [topic])
     check.click(check_score, [topic, provider, niche], [score_box, script_box])
-    go.click(make_short, [topic, provider, skip, length, voice, niche],
+    go.click(make_short, [topic, provider, skip, length, voice, niche, make_thumb],
              [status, score_box, script_box, audio_out, video_out, thumb_out])
 
 if __name__ == "__main__":
