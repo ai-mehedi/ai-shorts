@@ -18,6 +18,21 @@ def _clean_title(title: str) -> str:
     """Drop emojis/symbols so they don't render as empty boxes on the image."""
     return re.sub(r"\s+", " ", _EMOJI.sub("", title)).strip()
 
+
+def _wrap_to_width(text, font, draw, max_w):
+    """Wrap words so every line fits within max_w pixels (real font metrics)."""
+    words, lines, cur = text.split(), [], ""
+    for word in words:
+        trial = (cur + " " + word).strip()
+        if draw.textbbox((0, 0), trial, font=font)[2] <= max_w or not cur:
+            cur = trial
+        else:
+            lines.append(cur)
+            cur = word
+    if cur:
+        lines.append(cur)
+    return lines
+
 FONT_CANDIDATES = [
     "C:/Windows/Fonts/ariblk.ttf",   # Arial Black (Windows)
     "C:/Windows/Fonts/arialbd.ttf",  # Arial Bold (Windows)
@@ -86,23 +101,30 @@ def make_thumbnail(title: str, source, out_path: Path, cfg: dict,
     base = Image.alpha_composite(base, shade)
 
     draw = ImageDraw.Draw(base)
-    font = _load_font(int(w * 0.115))
     clean = _clean_title(title).upper() or "SCARY STORY"
-    lines = textwrap.wrap(clean, width=13) or [clean]
 
-    y = int(h * 0.07)
+    # auto-fit: shrink font until every line fits the width and the block isn't too tall
+    max_w = int(w * 0.88)
+    size = int(w * 0.13)
+    while size > 28:
+        font = _load_font(size)
+        lines = _wrap_to_width(clean, font, draw, max_w)
+        widest = max(draw.textbbox((0, 0), ln, font=font)[2] for ln in lines)
+        line_h = draw.textbbox((0, 0), "Ag", font=font)[3] * 1.25
+        if widest <= max_w and line_h * len(lines) <= h * 0.5:
+            break
+        size -= 6
+
+    y = int(h * 0.06)
     outline = max(3, w // 220)
     for line in lines:
         bbox = draw.textbbox((0, 0), line, font=font)
-        tw = bbox[2] - bbox[0]
-        x = (w - tw) // 2
-        # black outline
+        x = (w - (bbox[2] - bbox[0])) // 2
         for dx in range(-outline, outline + 1):
             for dy in range(-outline, outline + 1):
                 draw.text((x + dx, y + dy), line, font=font, fill=(0, 0, 0, 255))
-        # yellow fill (high CTR for horror)
         draw.text((x, y), line, font=font, fill=(255, 221, 0, 255))
-        y += int((bbox[3] - bbox[1]) * 1.25)
+        y += int(line_h)
 
     base.convert("RGB").save(out_path, quality=92)
     return out_path

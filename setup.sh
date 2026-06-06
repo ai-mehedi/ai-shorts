@@ -19,6 +19,12 @@ echo "==> installing python packages (this can take a few minutes)..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
+# Some RunPod images ship a flash-attn build that crashes diffusers on import
+# ("infer_schema ... Parameter q has unsupported type"). diffusers works fine
+# without it (uses PyTorch SDPA), so remove the broken build.
+echo "==> removing incompatible flash-attn (if present)..."
+pip uninstall -y flash-attn flash_attn >/dev/null 2>&1 || true
+
 # --- 3. .env (API keys) ---
 if [ ! -f .env ]; then
   cp .env.example .env
