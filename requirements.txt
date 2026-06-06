@@ -2,7 +2,7 @@
 torch>=2.4.0
 torchvision
 torchaudio
-numpy
+numpy<2          # numpy 2.x breaks torch 2.4 ABI on RunPod
 pyyaml
 python-dotenv
 tqdm
@@ -29,7 +29,9 @@ whisperx>=3.1.1
 
 # --- AI video ---
 diffusers>=0.32.0
-transformers>=4.47.0
+# transformers 4.50+ needs torch 2.7+ (uses torch.float8_e8m0fnu).
+# RunPod ships torch 2.4.1, so keep transformers in a compatible range:
+transformers>=4.47.0,<4.50
 accelerate
 imageio
 imageio-ffmpeg
