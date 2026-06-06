@@ -16,6 +16,7 @@ def _get_pipe(cfg: dict):
 
     from diffusers import HunyuanVideoPipeline, HunyuanVideoTransformer3DModel
 
+    print("[video] loading HunyuanVideo model (~45GB, this takes a few minutes the first time)...", flush=True)
     model_id = cfg["video"]["model"]
     transformer = HunyuanVideoTransformer3DModel.from_pretrained(
         model_id, subfolder="transformer", torch_dtype=torch.bfloat16
@@ -56,7 +57,7 @@ def generate_all(scenes: list[dict], out_dir: Path, cfg: dict) -> list[Path]:
     paths = []
     for i, scene in enumerate(scenes):
         p = out_dir / f"scene_{i:02d}.mp4"
-        print(f"  [video] scene {i+1}/{len(scenes)}: {scene['video_prompt'][:60]}...")
+        print(f"  [video] scene {i+1}/{len(scenes)}: {scene['video_prompt'][:60]}...", flush=True)
         generate_scene(scene["video_prompt"], p, cfg, seed=i)
         paths.append(p)
     return paths

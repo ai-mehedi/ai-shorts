@@ -118,10 +118,18 @@ def make_short(topic, provider_label, skip_video, target_seconds, voice, niche_i
         yield (f"✅ Quick test done.\nFolder: {work}"), score_text, script_text, str(voice_path), None, str(thumb)
         return
 
-    # 4. video
-    yield "🎥 Generating AI video (HunyuanVideo — the slow part)...", score_text, script_text, str(voice_path), None, None
+    # 4. video — generate scene by scene with live progress
+    yield ("🎥 Loading HunyuanVideo model (~45GB — first run takes a few minutes, "
+           "no progress bar during load)..."), score_text, script_text, str(voice_path), None, None
+    scenes = []
+    total = len(script.get("scenes", []))
     try:
-        scenes = video_gen.generate_all(script["scenes"], work, cfg)
+        for i, sc in enumerate(script["scenes"]):
+            yield (f"🎥 Generating video scene {i+1}/{total} — ~2-5 min each, please wait... "
+                   "(watch the terminal for the step bar)"), score_text, script_text, str(voice_path), None, None
+            p = work / f"scene_{i:02d}.mp4"
+            video_gen.generate_scene(sc["video_prompt"], p, cfg, seed=i)
+            scenes.append(p)
     except Exception as e:
         yield (f"❌ Video failed: {e}\n\nHunyuanVideo needs a big GPU (A100/H100). "
                "Tick 'Quick test' to skip video."), score_text, script_text, str(voice_path), None, None
