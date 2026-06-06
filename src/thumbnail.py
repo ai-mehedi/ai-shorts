@@ -59,10 +59,23 @@ def _base_image(source, w, h):
     return _cover(img.convert("RGB"), w, h)
 
 
-def make_thumbnail(title: str, source, out_path: Path, cfg: dict) -> Path:
+def make_thumbnail(title: str, source, out_path: Path, cfg: dict,
+                   ai_prompt: str | None = None) -> Path:
     from PIL import Image, ImageDraw
 
     w, h = cfg["output"]["width"], cfg["output"]["height"]
+
+    # if there's no video frame, generate a real scary image with FLUX
+    have_source = source and Path(source).exists()
+    if not have_source and ai_prompt and cfg.get("thumbnail", {}).get("use_ai", False):
+        try:
+            from . import image_gen
+            bg = out_path.parent / "thumb_bg.png"
+            image_gen.generate_image(ai_prompt, bg, cfg)
+            source = bg
+        except Exception as e:
+            print(f"  [thumb] FLUX image failed ({e}); using dark background")
+
     base = _base_image(source, w, h).convert("RGBA")
 
     # darken top + bottom bands so text pops

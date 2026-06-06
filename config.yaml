@@ -20,6 +20,17 @@ video:
   guidance: 6.0
   model: "hunyuanvideo-community/HunyuanVideo"
 
+image:                       # FLUX = open-source image model (for thumbnails)
+  model: "black-forest-labs/FLUX.1-schnell"
+  width: 768
+  height: 1344
+  steps: 4                   # schnell is fast (4 steps); use 28 for FLUX.1-dev
+  guidance: 0.0              # schnell uses 0.0; dev uses ~3.5
+
+thumbnail:
+  use_ai: true               # true = FLUX makes a real scary image (needs GPU)
+                             # false = plain dark background
+
 output:
   width: 1080                # final short resolution
   height: 1920

@@ -36,6 +36,9 @@ transformers>=4.47.0,<4.50
 accelerate
 imageio
 imageio-ffmpeg
+huggingface_hub        # model pre-download
+protobuf               # required by FLUX's T5 tokenizer
+sentencepiece          # required by FLUX's T5 tokenizer
 
 # --- assembly + thumbnail ---
 ffmpeg-python

@@ -48,10 +48,12 @@ def run(topic: str, cfg: dict, skip_video=False) -> Path:
     hook = script.get("hook") or narration.split(".")[0]
     caps = captions.make_captions(voice, work / "captions.ass", cfg, hook=hook)
 
+    thumb_prompt = script["scenes"][0]["video_prompt"] if script.get("scenes") else script["title"]
+
     # 4. video
     if skip_video:
         print("[4/6] SKIPPED video")
-        thumbnail.make_thumbnail(script["title"], None, work / "thumbnail.jpg", cfg)
+        thumbnail.make_thumbnail(script["title"], None, work / "thumbnail.jpg", cfg, ai_prompt=thumb_prompt)
         print(f"\n✅ Quick test done -> {work}")
         return work
     print("[4/6] AI video (HunyuanVideo)...")
@@ -63,7 +65,7 @@ def run(topic: str, cfg: dict, skip_video=False) -> Path:
 
     # 6. thumbnail
     print("[6/6] thumbnail...")
-    thumbnail.make_thumbnail(script["title"], scenes[0], work / "thumbnail.jpg", cfg)
+    thumbnail.make_thumbnail(script["title"], scenes[0], work / "thumbnail.jpg", cfg, ai_prompt=thumb_prompt)
 
     print(f"\n✅ DONE -> {out}")
     return out

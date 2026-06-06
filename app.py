@@ -95,9 +95,12 @@ def make_short(topic, provider_label, skip_video, target_seconds, voice):
         yield f"❌ Captions failed: {e}", score_text, script_text, str(voice_path), None, None
         return
 
+    thumb_prompt = script["scenes"][0]["video_prompt"] if script.get("scenes") else script["title"]
+
     if skip_video:
-        thumb = thumbnail.make_thumbnail(script["title"], None, work / "thumbnail.jpg", cfg)
-        yield (f"✅ Quick test done (no AI video).\nFolder: {work}"), score_text, script_text, str(voice_path), None, str(thumb)
+        yield "🖼️ Making AI thumbnail (FLUX)...", score_text, script_text, str(voice_path), None, None
+        thumb = thumbnail.make_thumbnail(script["title"], None, work / "thumbnail.jpg", cfg, ai_prompt=thumb_prompt)
+        yield (f"✅ Quick test done.\nFolder: {work}"), score_text, script_text, str(voice_path), None, str(thumb)
         return
 
     # 4. video
@@ -118,7 +121,7 @@ def make_short(topic, provider_label, skip_video, target_seconds, voice):
         return
 
     # 6. thumbnail
-    thumb = thumbnail.make_thumbnail(script["title"], scenes[0], work / "thumbnail.jpg", cfg)
+    thumb = thumbnail.make_thumbnail(script["title"], scenes[0], work / "thumbnail.jpg", cfg, ai_prompt=thumb_prompt)
     yield f"✅ DONE! Short + thumbnail ready.\nFolder: {work}", score_text, script_text, str(voice_path), str(out), str(thumb)
 
 

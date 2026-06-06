@@ -41,7 +41,16 @@ else
   echo "      OPENAI_API_KEY=sk-...."
 fi
 
+# --- 6. pre-download models so the first run is instant ---
+echo "==> downloading voice + caption models (light)..."
+python download_models.py || echo "  (model pre-download skipped — will download on first run)"
+
 echo ""
 echo "============================================"
-echo "  ✅ Setup done!  Now run:   bash start.sh"
+echo "  ✅ Setup done!"
+echo ""
+echo "  To pre-download the big AI models (recommended on A100):"
+echo "     python download_models.py --all     # FLUX (~24GB) + HunyuanVideo (~40GB)"
+echo ""
+echo "  Then start the app:   bash start.sh"
 echo "============================================"
