@@ -3,8 +3,20 @@
 Uses a frame from the AI video as the background (or a dark fallback in
 quick-test mode), then overlays the title in big bold text with an outline.
 """
+import re
 import textwrap
 from pathlib import Path
+
+# emoji / symbol / arrow / variation-selector ranges that the bold fonts can't draw
+_EMOJI = re.compile(
+    "[\U0001F000-\U0001FAFF\U00002600-\U000027BF\U00002190-\U000021FF"
+    "\U00002B00-\U00002BFF\U0000FE00-\U0000FE0F\U00002300-\U000023FF]"
+)
+
+
+def _clean_title(title: str) -> str:
+    """Drop emojis/symbols so they don't render as empty boxes on the image."""
+    return re.sub(r"\s+", " ", _EMOJI.sub("", title)).strip()
 
 FONT_CANDIDATES = [
     "C:/Windows/Fonts/ariblk.ttf",   # Arial Black (Windows)
@@ -62,7 +74,8 @@ def make_thumbnail(title: str, source, out_path: Path, cfg: dict) -> Path:
 
     draw = ImageDraw.Draw(base)
     font = _load_font(int(w * 0.115))
-    lines = textwrap.wrap(title.upper(), width=13) or [title.upper()]
+    clean = _clean_title(title).upper() or "SCARY STORY"
+    lines = textwrap.wrap(clean, width=13) or [clean]
 
     y = int(h * 0.07)
     outline = max(3, w // 220)
