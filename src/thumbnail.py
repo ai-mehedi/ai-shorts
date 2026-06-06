@@ -98,7 +98,7 @@ def make_thumbnail(title: str, source, out_path: Path, cfg: dict,
             image_gen.generate_image(ai_prompt, bg, cfg)
             source = bg
         except Exception as e:
-            print(f"  [thumb] FLUX image failed ({e}); using dark background")
+            print(f"  [thumb] AI image failed ({e}); using dark background")
 
     base = _base_image(source, w, h).convert("RGBA")
 

@@ -24,6 +24,7 @@ image:
   provider: local            # local (FREE, SDXL on your GPU) | openai (paid ChatGPT)
   # --- local (free, runs on your A100) ---
   model: "SG161222/RealVisXL_V4.0"  # photorealistic faces, ungated, high quality
+  dtype: float32             # float32 = no dtype crash (safe). float16 = faster if it works
   width: 832                 # higher-res portrait for crisp thumbnails
   height: 1216
   steps: 35                  # more steps = sharper, more detailed

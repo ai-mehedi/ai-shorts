@@ -33,6 +33,9 @@ def _generate_openai(prompt: str, out_path: Path, cfg: dict) -> Path:
 
 
 # ---------------- Local (SDXL / RealVisXL) ----------------
+_DTYPES = {"float32": torch.float32, "float16": torch.float16, "bfloat16": torch.bfloat16}
+
+
 def _get_pipe(cfg: dict):
     global _PIPE
     if _PIPE is not None:
@@ -41,9 +44,12 @@ def _get_pipe(cfg: dict):
     from diffusers import AutoPipelineForText2Image
 
     model_id = cfg["image"]["model"]
-    dtype = torch.bfloat16 if "flux" in model_id.lower() else torch.float16
+    # float32 = bulletproof (no dtype mismatch); A100 has the memory for it.
+    dtype = _DTYPES.get(cfg["image"].get("dtype", "float32"), torch.float32)
+    if "flux" in model_id.lower():
+        dtype = torch.bfloat16
     pipe = AutoPipelineForText2Image.from_pretrained(model_id, torch_dtype=dtype)
-    pipe = pipe.to("cuda")            # A100 has plenty of VRAM; avoids offload dtype bugs
+    pipe = pipe.to("cuda")
     _PIPE = pipe
     return pipe
 
