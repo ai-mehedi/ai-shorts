@@ -34,12 +34,18 @@ cinematography — specific subject + setting + lighting + camera move. The FIRS
 scene must be the most visually shocking (it's the 3-second hook).
 No text, words, logos, or brand products in the image.
 
+Also write a THUMBNAIL prompt: a vertical movie-poster image — an EXTREME
+CLOSE-UP of the main character's TERRIFIED face (wide fearful eyes, mouth open)
+reacting to the horror, with the key scary element behind them. Cinematic,
+high contrast, photorealistic. No text in the image.
+
 Return ONLY valid JSON in exactly this shape:
 {{
   "title": "curiosity-gap title with 1 emoji",
   "hook": "punchy first line, max 10 words, hints the twist",
   "narration": "all the short beats joined into one spoken string",
   "cta": "one-line call to action",
+  "thumbnail_prompt": "extreme close-up of a terrified face + the scary element",
   "scenes": [
     {{"text": "one short beat (the words spoken during this scene)",
       "video_prompt": "cinematic AI video prompt, no brands or logos"}}

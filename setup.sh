@@ -35,7 +35,15 @@ if [ ! -f .env ]; then
 fi
 
 # --- 4. folders (models go on the RunPod network volume) ---
-mkdir -p models output assets/music
+mkdir -p models output assets/music assets/fonts
+
+# bold condensed poster font for thumbnails (Anton)
+if [ ! -f assets/fonts/Anton.ttf ]; then
+  echo "==> downloading Anton poster font..."
+  curl -fsSL -o assets/fonts/Anton.ttf \
+    https://github.com/google/fonts/raw/main/ofl/anton/Anton-Regular.ttf || \
+    echo "  (font download skipped — will use system bold font)"
+fi
 
 # --- 5. check the API key is set ---
 if grep -qE '^(OPENAI|ANTHROPIC)_API_KEY=sk-' .env; then

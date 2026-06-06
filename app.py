@@ -95,7 +95,8 @@ def make_short(topic, provider_label, skip_video, target_seconds, voice):
         yield f"❌ Captions failed: {e}", score_text, script_text, str(voice_path), None, None
         return
 
-    thumb_prompt = script["scenes"][0]["video_prompt"] if script.get("scenes") else script["title"]
+    thumb_prompt = (script.get("thumbnail_prompt")
+                    or (script["scenes"][0]["video_prompt"] if script.get("scenes") else script["title"]))
 
     if skip_video:
         yield "🖼️ Making AI thumbnail (FLUX)...", score_text, script_text, str(voice_path), None, None

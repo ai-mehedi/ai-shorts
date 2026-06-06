@@ -33,7 +33,9 @@ def _wrap_to_width(text, font, draw, max_w):
         lines.append(cur)
     return lines
 
+_FONT_DIR = Path(__file__).resolve().parent.parent / "assets" / "fonts"
 FONT_CANDIDATES = [
+    str(_FONT_DIR / "Anton.ttf"),    # bold condensed poster font (downloaded by setup.sh)
     "C:/Windows/Fonts/ariblk.ttf",   # Arial Black (Windows)
     "C:/Windows/Fonts/arialbd.ttf",  # Arial Bold (Windows)
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",  # Linux/RunPod
@@ -122,15 +124,19 @@ def make_thumbnail(title: str, source, out_path: Path, cfg: dict,
             break
         size -= 6
 
-    y = int(h * 0.06)
-    outline = max(3, w // 220)
-    for line in lines:
+    y = int(h * 0.05)
+    outline = max(4, w // 180)
+    white = (255, 255, 255, 255)
+    red = (228, 26, 28, 255)
+    for i, line in enumerate(lines):
+        # poster style: white lines, last line punched in RED (when multi-line)
+        fill = red if (len(lines) > 1 and i == len(lines) - 1) else white
         bbox = draw.textbbox((0, 0), line, font=font)
         x = (w - (bbox[2] - bbox[0])) // 2
         for dx in range(-outline, outline + 1):
             for dy in range(-outline, outline + 1):
                 draw.text((x + dx, y + dy), line, font=font, fill=(0, 0, 0, 255))
-        draw.text((x, y), line, font=font, fill=(255, 221, 0, 255))
+        draw.text((x, y), line, font=font, fill=fill)
         y += int(line_h)
 
     base.convert("RGB").save(out_path, quality=92)

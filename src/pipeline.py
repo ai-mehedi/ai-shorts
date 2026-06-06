@@ -48,7 +48,8 @@ def run(topic: str, cfg: dict, skip_video=False) -> Path:
     hook = script.get("hook") or narration.split(".")[0]
     caps = captions.make_captions(voice, work / "captions.ass", cfg, hook=hook)
 
-    thumb_prompt = script["scenes"][0]["video_prompt"] if script.get("scenes") else script["title"]
+    thumb_prompt = (script.get("thumbnail_prompt")
+                    or (script["scenes"][0]["video_prompt"] if script.get("scenes") else script["title"]))
 
     # 4. video
     if skip_video:

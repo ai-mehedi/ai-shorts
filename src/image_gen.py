@@ -10,8 +10,13 @@ import torch
 
 _PIPE = None
 
-STYLE = (", cinematic horror, dark, moody, photorealistic, dramatic low-key "
-         "lighting, fog, 35mm film, ultra detailed, no text, no watermark")
+STYLE = (", cinematic horror movie poster, dramatic low-key lighting, high "
+         "contrast, photorealistic, ultra detailed face, sharp focus, fog, "
+         "35mm film, intense expression, no text, no watermark, no logo")
+
+NEGATIVE = ("blurry, low quality, low resolution, deformed, disfigured, extra "
+            "limbs, bad anatomy, cartoon, anime, illustration, text, watermark, "
+            "signature, washed out, flat lighting")
 
 
 def _get_pipe(cfg: dict):
@@ -33,14 +38,17 @@ def generate_image(prompt: str, out_path: Path, cfg: dict, seed: int = 0) -> Pat
     img = cfg["image"]
     pipe = _get_pipe(cfg)
     gen = torch.Generator("cpu").manual_seed(seed)
-    image = pipe(
-        prompt + STYLE,
+    kwargs = dict(
+        prompt=prompt + STYLE,
         width=img["width"],
         height=img["height"],
         num_inference_steps=img["steps"],
         guidance_scale=img["guidance"],
         generator=gen,
-    ).images[0]
+    )
+    if img["guidance"] > 0:          # turbo (guidance 0) ignores negative prompt
+        kwargs["negative_prompt"] = NEGATIVE
+    image = pipe(**kwargs).images[0]
     image.save(out_path)
     return out_path
 
