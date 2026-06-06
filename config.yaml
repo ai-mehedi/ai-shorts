@@ -20,12 +20,15 @@ video:
   guidance: 6.0
   model: "hunyuanvideo-community/HunyuanVideo"
 
-image:                       # FLUX = open-source image model (for thumbnails)
-  model: "black-forest-labs/FLUX.1-schnell"
-  width: 768
-  height: 1344
-  steps: 4                   # schnell is fast (4 steps); use 28 for FLUX.1-dev
-  guidance: 0.0              # schnell uses 0.0; dev uses ~3.5
+image:                       # open-source image model for thumbnails (no login)
+  model: "stabilityai/sdxl-turbo"   # open + ungated + fast. (FLUX needs HF token)
+  width: 1024                # SDXL-Turbo native size; cropped to vertical later
+  height: 1024
+  steps: 4                   # turbo is fast (1-4 steps)
+  guidance: 0.0              # turbo uses 0.0
+  # To use FLUX instead (better quality): accept its license on huggingface.co,
+  # run `huggingface-cli login`, then set:
+  #   model: "black-forest-labs/FLUX.1-schnell"  (width/height 768x1344, steps 4)
 
 thumbnail:
   use_ai: true               # true = FLUX makes a real scary image (needs GPU)

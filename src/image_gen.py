@@ -1,7 +1,8 @@
-"""AI image generation with FLUX.1-schnell (open-source, fast, from Hugging Face).
+"""AI image generation for thumbnails (open-source, from Hugging Face).
 
-Used to make a real scary background image for the thumbnail — so you get a
-visual cover even in Quick test (no video). Needs a GPU.
+Default model: stabilityai/sdxl-turbo — open, NO login needed, fast on a GPU.
+Works with any text-to-image model via diffusers' AutoPipeline, so you can switch
+to SDXL base or FLUX (FLUX needs an HF token + license acceptance) in config.yaml.
 """
 from pathlib import Path
 
@@ -18,11 +19,12 @@ def _get_pipe(cfg: dict):
     if _PIPE is not None:
         return _PIPE
 
-    from diffusers import FluxPipeline
+    from diffusers import AutoPipelineForText2Image
 
     model_id = cfg["image"]["model"]
-    pipe = FluxPipeline.from_pretrained(model_id, torch_dtype=torch.bfloat16)
-    pipe.enable_model_cpu_offload()   # fit on smaller GPUs
+    dtype = torch.bfloat16 if "flux" in model_id.lower() else torch.float16
+    pipe = AutoPipelineForText2Image.from_pretrained(model_id, torch_dtype=dtype)
+    pipe.enable_model_cpu_offload()   # fit comfortably on the A100
     _PIPE = pipe
     return pipe
 
