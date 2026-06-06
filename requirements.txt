@@ -1,0 +1,38 @@
+# --- core ---
+torch>=2.4.0
+torchvision
+torchaudio
+numpy
+pyyaml
+python-dotenv
+tqdm
+
+# --- script (LLM) ---
+anthropic>=0.40.0
+openai>=1.40.0
+
+# --- GUI (web interface) ---
+gradio>=4.44.0
+
+# --- voice (TTS) ---
+# Kokoro: light, great American voices, runs on CPU or GPU
+kokoro>=0.7.0
+soundfile
+# F5-TTS alternative (voice cloning) — uncomment to use:
+# f5-tts
+
+# --- captions (word-level timing) ---
+whisperx>=3.1.1
+
+# --- AI video ---
+diffusers>=0.32.0
+transformers>=4.47.0
+accelerate
+imageio
+imageio-ffmpeg
+
+# --- assembly + thumbnail ---
+ffmpeg-python
+pillow
+
+# Note: ffmpeg binary must also be installed at the OS level and on PATH.

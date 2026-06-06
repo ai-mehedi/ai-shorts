@@ -1,0 +1,48 @@
+# ====== ai-short config ======
+
+niche: scary                 # scary | motivation | facts
+
+llm:
+  provider: openai           # openai (ChatGPT) | anthropic (Claude)
+  openai_model: gpt-4o       # gpt-4o | gpt-4o-mini (cheaper)
+  anthropic_model: claude-opus-4-8
+
+quality:
+  min_viral_score: 75        # 0-100; regenerate script until it hits this
+  max_retries: 3             # how many scripts to try before keeping the best
+
+video:
+  width: 720                 # generation size (vertical); upscaled to 1080 on assemble
+  height: 1280
+  fps: 24
+  frames_per_scene: 85       # HunyuanVideo wants (4k+1) frames; 85 ≈ 3.5s
+  steps: 30                  # diffusion steps (lower = faster, rougher)
+  guidance: 6.0
+  model: "hunyuanvideo-community/HunyuanVideo"
+
+output:
+  width: 1080                # final short resolution
+  height: 1920
+  target_seconds: 45         # aim for 35-50s shorts
+
+tts:
+  engine: kokoro             # kokoro | f5
+  voice: am_michael          # deep American male (good for horror)
+  speed: 0.95                # slightly slow = more dramatic
+
+captions:
+  whisper_model: large-v3
+  font: "Arial Black"
+  font_size: 22
+  primary_color: "&H00FFFFFF"   # white
+  highlight_color: "&H0000FFFF" # yellow (current word)
+  outline: 3
+  margin_v: 320              # push captions up from bottom
+
+music:
+  path: "assets/music/dark_ambient.mp3"
+  volume: 0.12               # quiet under the voice
+
+paths:
+  models_dir: "models"       # mount RunPod network volume here
+  output_dir: "output"

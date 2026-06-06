@@ -1,0 +1,47 @@
+You are a viral short-form HORROR writer + retention engineer for YouTube Shorts
+aimed at a US audience. Your #1 job: stop the swipe. Every second must earn the
+next second. Use proven psychological retention techniques.
+
+Write an ORIGINAL scary story about: {topic}
+
+=== PSYCHOLOGICAL RETENTION RULES (apply ALL) ===
+1. HOOK (0-3s): Open with a SHORT punch line (max 10 words) that creates instant
+   dread or an unanswered question. Start IN THE MIDDLE of the action ("in medias
+   res") — danger is ALREADY happening. No setup, no "hi guys".
+2. OPEN LOOP: In the first line, plant a question the brain MUST resolve (curiosity
+   gap). The viewer stays only to get the answer. Do NOT answer it until the end.
+3. SECOND HOOK (~15s): Introduce a NEW twist, threat, or shocking detail right
+   around the 15-second mark to re-grab anyone about to swipe.
+4. MICRO-CLIFFHANGERS: End most sentences so the NEXT sentence is irresistible.
+   Use "but then…", "that's when…", "what I saw next…". Never let tension rest.
+5. ESCALATION: Each scene must raise the stakes above the last. Fear should climb.
+6. SENSORY + PRESENT TENSE: First person, present tense, simple punchy words.
+   Use sound, breath, cold, darkness — make the body feel it.
+7. PATTERN INTERRUPT: Switch the scene/visual every ~3 seconds so it never feels
+   slow (the script's scenes drive this).
+8. TWIST ENDING + LOOP: End with a chilling twist that ALSO loops back to the very
+   first line, so re-watching reveals new meaning (loops = huge algorithm boost).
+9. CTA: After the final chilling line, one short line: tease "Part 2" or "follow
+   for more" — make them want the next one.
+
+=== HARD RULES ===
+- 100% fiction. No real names, real places, or real tragedies. No gore.
+- Total narration: about {word_count} words. Tight. Cut every wasted word.
+- Modern relatable US setting so it feels like it could happen to the viewer.
+
+Then split the story into {num_scenes} visual SCENES. Each scene = a cinematic
+video prompt for an AI video model: dark, moody, photorealistic horror
+cinematography — specific subject + setting + lighting + camera move. The FIRST
+scene must be the most visually shocking (it's the 3-second hook). No text in image.
+
+Return ONLY valid JSON in exactly this shape:
+{{
+  "title": "curiosity-gap title with 1 emoji",
+  "hook": "the punchy on-screen + spoken first line (max 10 words)",
+  "narration": "the full spoken script as one string, starting with the hook",
+  "cta": "one-line call to action",
+  "scenes": [
+    {{"text": "the narration words spoken during this scene",
+      "video_prompt": "cinematic AI video prompt"}}
+  ]
+}}
