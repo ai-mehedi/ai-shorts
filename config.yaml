@@ -21,16 +21,16 @@ video:
   model: "hunyuanvideo-community/HunyuanVideo"
 
 image:
-  provider: openai           # openai (ChatGPT, best, no GPU) | local (SDXL on GPU)
-  # --- openai (uses your OpenAI key, ~$0.04-0.08 per image) ---
-  openai_model: gpt-image-1
-  openai_size: "1024x1536"   # portrait
-  # --- local (only used if provider: local) ---
-  model: "SG161222/RealVisXL_V4.0"  # photorealistic faces, ungated
-  width: 768
-  height: 1344
-  steps: 30
+  provider: local            # local (FREE, SDXL on your GPU) | openai (paid ChatGPT)
+  # --- local (free, runs on your A100) ---
+  model: "SG161222/RealVisXL_V4.0"  # photorealistic faces, ungated, high quality
+  width: 832                 # higher-res portrait for crisp thumbnails
+  height: 1216
+  steps: 35                  # more steps = sharper, more detailed
   guidance: 7.0
+  # --- openai (only if provider: openai; uses your key, ~$0.04-0.08/image) ---
+  openai_model: gpt-image-1
+  openai_size: "1024x1536"
 
 thumbnail:
   use_ai: true               # true = FLUX makes a real scary image (needs GPU)
